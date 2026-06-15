@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUVA | Shopping Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600&family=Playfair+Display:wght=700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .brand-font { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-[#111111] pb-32">
+
+    <header class="bg-white border-b border-gray-200 py-5 px-6 md:px-12 flex items-center justify-between sticky top-0 z-50">
+        <div class="text-3xl font-bold tracking-widest brand-font">
+            <a href="index.html">CUVA</a>
+        </div>
+        <nav class="hidden md:flex space-x-10 text-sm uppercase font-semibold">
+            <a href="home.html" class="hover:text-[#D4AF37] transition-colors">Shop</a>
+            <a href="about.html" class="hover:text-[#D4AF37] transition-colors">About</a>
+            <a href="account.html" class="hover:text-[#D4AF37] transition-colors">Account</a>
+        </nav>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 md:px-12 pt-16">
+        <h1 class="text-4xl font-bold brand-font mb-12">Your Shopping Cart</h1>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            
+            <div class="lg:col-span-2 space-y-6" id="cartItemsContainer">
+                </div>
+
+            <div class="bg-white p-8 border border-gray-200 h-fit space-y-6">
+                <h3 class="text-xl font-bold brand-font border-b border-gray-100 pb-4">Order Summary</h3>
+                
+                <div class="flex justify-between text-sm text-gray-600">
+                    <span>Subtotal</span>
+                    <span id="subtotalPrice">0 EGP</span>
+                </div>
+                <div class="flex justify-between text-sm text-gray-600">
+                    <span>Shipping</span>
+                    <span class="text-green-600 font-semibold">Free Shipping</span>
+                </div>
+                
+                <hr class="border-gray-200">
+                
+                <div class="flex justify-between font-bold text-lg">
+                    <span>Total</span>
+                    <span id="totalPrice">0 EGP</span>
+                </div>
+
+                <button onclick="proceedToCheckout()" class="w-full bg-[#111111] text-white py-4 uppercase tracking-widest text-sm font-semibold hover:bg-[#D4AF37] transition duration-300">
+                    Proceed to Checkout
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+  <script>
+        // 1. دالة عرض المنتجات جوه صفحة الكارت
+        function displayCart() {
+            const cart = JSON.parse(localStorage.getItem('cuva_cart')) || [];
+            const container = document.getElementById('cartItemsContainer');
+            
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white border border-gray-200">
+                        <p class="text-gray-500 mb-4">Your cart is empty.</p>
+                        <a href="home.html" class="inline-block bg-[#111111] text-white px-6 py-2 uppercase text-xs font-semibold tracking-widest hover:bg-[#D4AF37] transition">Continue Shopping</a>
+                    </div>
+                `;
+                updateSummary(0);
+                return;
+            }
+
+            let cartHTML = '';
+            let subtotal = 0;
+
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+
+                cartHTML += `
+                    <div class="flex items-center justify-between bg-white p-6 border border-gray-200 gap-4">
+                        <div class="flex items-center gap-6">
+                            <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" class="w-20 h-24 object-cover border border-gray-100">
+                            <div>
+                                <h4 class="font-semibold text-base">${item.name}</h4>
+                                <p class="text-xs text-gray-400 uppercase tracking-wider mt-1">Size: ${item.size}</p>
+                                <p class="text-sm font-semibold text-gray-700 mt-2">${item.price} EGP</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-6">
+                            <div class="flex items-center border border-gray-300">
+                                <button onclick="changeQuantity(${index}, -1)" class="px-3 py-1 bg-gray-50 hover:bg-gray-100 font-semibold">-</button>
+                                <span class="px-4 py-1 text-sm font-semibold">${item.quantity}</span>
+                                <button onclick="changeQuantity(${index}, 1)" class="px-3 py-1 bg-gray-50 hover:bg-gray-100 font-semibold">+</button>
+                            </div>
+                            
+                            <button onclick="removeItem(${index})" class="text-red-500 hover:text-red-700 text-sm transition">
+                                Remove
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = cartHTML;
+            updateSummary(subtotal);
+        }
+
+        // 2. دالة تعديل الكمية (+ أو -)
+        function changeQuantity(index, change) {
+            let cart = JSON.parse(localStorage.getItem('cuva_cart')) || [];
+            cart[index].quantity += change;
+
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+
+            localStorage.setItem('cuva_cart', JSON.stringify(cart));
+            displayCart(); 
+        }
+
+        // 3. دالة مسح منتج نهائياً من الكارت
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('cuva_cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cuva_cart', JSON.stringify(cart));
+            displayCart();
+        }
+
+        // 4. دالة تحديث Mجموع والأسعار
+        function updateSummary(subtotal) {
+            document.getElementById('subtotalPrice').innerText = `${subtotal} EGP`;
+            document.getElementById('totalPrice').innerText = `${subtotal} EGP`;
+        }
+
+        // 5. خطوة الانتقال للـ Checkout الحقيقي وتوجيهه لصفحة الشحن
+        function proceedToCheckout() {
+            const cart = JSON.parse(localStorage.getItem('cuva_cart')) || [];
+            const token = localStorage.getItem('cuva_token'); 
+            
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+
+            if (!token) {
+                alert('Please sign in or create an account to complete your order!');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // التوجيه لصفحة الشحن الحقيقية
+            window.location.href = 'checkout.html';
+        }
+
+        // تشغيل الدالة أول ما الصفحة تحمل بنجاح
+        window.onload = displayCart;
+    </script>
+</body>
+</html>

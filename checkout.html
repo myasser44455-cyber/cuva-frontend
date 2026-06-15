@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUVA | Checkout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600&family=Playfair+Display:wght=700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .brand-font { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-[#111111] pb-32">
+
+    <header class="bg-white border-b border-gray-200 py-5 px-6 md:px-12 flex items-center justify-between sticky top-0 z-50">
+        <div class="text-3xl font-bold tracking-widest brand-font">
+            <a href="index.html">CUVA</a>
+        </div>
+    </header>
+
+    <main class="max-w-3xl mx-auto px-6 pt-16">
+        <h1 class="text-4xl font-bold brand-font mb-8 text-center">Shipping Details</h1>
+        
+        <div class="bg-white p-8 border border-gray-200">
+            <form id="checkoutForm" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">City / Governorate</label>
+                    <select id="shippingCity" required class="w-full border border-gray-300 p-3 text-sm focus:outline-none focus:border-[#D4AF37]">
+                        <option value="">Select your city...</option>
+                        <option value="Cairo">Cairo</option>
+                        <option value="Giza">Giza</option>
+                        <option value="Alexandria">Alexandria</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-widest mb-2">Detailed Address</label>
+                    <input type="text" id="shippingAddressDetails" placeholder="Street name, Building No, Apartment No..." required class="w-full border border-gray-300 p-3 text-sm focus:outline-none focus:border-[#D4AF37]">
+                </div>
+
+                <div class="border-t border-gray-100 pt-6">
+                    <div class="flex justify-between font-bold text-lg mb-6">
+                        <span>Order Total:</span>
+                        <span id="checkoutTotal">0 EGP</span>
+                    </div>
+
+                    <button type="submit" class="w-full bg-[#111111] text-white py-4 uppercase tracking-widest text-sm font-semibold hover:bg-[#D4AF37] transition duration-300">
+                        Place Order (Cash on Delivery)
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:5000/api';
+
+        // 1. حساب وعرض الإجمالي أول ما الصفحة تفتح
+        function loadCheckoutDetails() {
+            const cart = JSON.parse(localStorage.getItem('cuva_cart')) || [];
+            const token = localStorage.getItem('cuva_token');
+
+            if (!token) {
+                alert('Session expired. Please login again.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                window.location.href = 'home.html';
+                return;
+            }
+
+            let total = 0;
+            cart.forEach(item => total += (item.price * item.quantity));
+            document.getElementById('checkoutTotal').innerText = `${total} EGP`;
+        }
+
+        // 2. إرسال الأوردر للباك إند عند الضغط على الزرار
+        document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const token = localStorage.getItem('cuva_token');
+            const cart = JSON.parse(localStorage.getItem('cuva_cart')) || [];
+            
+            let total = 0;
+            cart.forEach(item => total += (item.price * item.quantity));
+
+            const orderData = {
+                items: cart,
+                shippingAddress: {
+                    city: document.getElementById('shippingCity').value,
+                    addressDetails: document.getElementById('shippingAddressDetails').value
+                },
+                totalPrice: total
+            };
+
+            try {
+                // إرسال الطلب مع التوكن لحماية الأوردر وتسجيله باسم صاحب الحساب
+                const response = await axios.post(`${BACKEND_URL}/orders`, orderData, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                alert('🚀 Your CUVA Order has been placed successfully!');
+                
+                // تنظيف الكارت من المتصفح بعد نجاح الأوردر
+                localStorage.removeItem('cuva_cart');
+                
+                // تحويل المستخدم لصفحة الحساب عشان يشوف أوردراته (أو لصفحة إنهاء شيك)
+                window.location.href = 'account.html';
+
+            } catch (error) {
+                console.error("Order Placement Error:", error);
+                alert(error.response?.data?.message || 'Failed to place order. Try again.');
+            }
+        });
+
+        window.onload = loadCheckoutDetails;
+    </script>
+</body>
+</html>

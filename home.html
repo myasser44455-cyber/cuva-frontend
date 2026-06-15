@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUVA | Shop</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600&family=Playfair+Display:wght=700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .brand-font { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-[#111111]">
+
+    <header class="bg-white border-b border-gray-200 py-5 px-6 md:px-12 flex items-center justify-between sticky top-0 z-50">
+        <div class="text-3xl font-bold tracking-widest brand-font">
+            <a href="index.html">CUVA</a>
+        </div>
+       <nav id="adminNav" class="hidden md:flex space-x-10 text-sm uppercase font-semibold">
+    <a href="index.html" class="text-[#D4AF37] transition-colors">Home</a>
+    <a href="about.html" class="hover:text-[#D4AF37] transition-colors">About</a>
+    <a href="contact.html" class="hover:text-[#D4AF37] transition-colors">Contact</a>
+    </nav>
+        <div class="flex items-center space-x-6">
+            <div class="relative hidden sm:block">
+                <input type="text" id="navSearch" placeholder="Search..." class="border border-gray-300 rounded-full py-2 px-5 text-sm focus:outline-none focus:border-[#D4AF37]">
+            </div>
+            <a href="account.html" class="text-gray-600 hover:text-[#D4AF37]">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </a>
+            <a href="cart.html" class="text-gray-600 hover:text-[#D4AF37] relative">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+            </a>
+        </div>
+    </header>
+
+    <main>
+        <section class="relative h-[70vh] bg-[#E3D5CA] flex items-center justify-center text-center overflow-hidden">
+            <div class="absolute inset-0 bg-gray-300 flex items-center justify-center text-gray-500 opacity-30">
+                [Large Fashion Banner Image Goes Here]
+            </div>
+            <div class="relative z-10 px-6">
+                <h1 class="text-5xl md:text-7xl font-bold brand-font mb-6 drop-shadow-md">Style That Speaks For You.</h1>
+                <button class="bg-[#111111] text-white px-12 py-4 uppercase tracking-widest text-sm font-semibold hover:bg-[#D4AF37] transition-colors duration-300">
+                    Shop Now
+                </button>
+            </div>
+        </section>
+
+        <section class="max-w-7xl mx-auto px-6 md:px-12 py-16 flex flex-col lg:flex-row gap-12">
+            <aside class="w-full lg:w-1/4 space-y-10">
+                <div>
+                    <h3 class="font-bold uppercase tracking-widest text-sm mb-4 border-b pb-2">Search Products</h3>
+                    <input type="text" id="sidebarSearch" placeholder="Find an item..." class="w-full border border-gray-300 p-3 text-sm focus:outline-none focus:border-[#D4AF37]">
+                </div>
+
+                <div>
+                    <h3 class="font-bold uppercase tracking-widest text-sm mb-4 border-b pb-2">Categories</h3>
+                    <ul class="space-y-3 text-sm font-medium text-gray-600">
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-[#D4AF37]"><input type="checkbox" value="Women" class="category-filter accent-[#111111] w-4 h-4"> Women</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-[#D4AF37]"><input type="checkbox" value="Men" class="category-filter accent-[#111111] w-4 h-4"> Men</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-[#D4AF37]"><input type="checkbox" value="Accessories" class="category-filter accent-[#111111] w-4 h-4"> Accessories</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-[#D4AF37]"><input type="checkbox" value="Shoes" class="category-filter accent-[#111111] w-4 h-4"> Shoes</label></li>
+                        <li><label class="flex items-center gap-3 cursor-pointer hover:text-[#D4AF37]"><input type="checkbox" value="Bags" class="category-filter accent-[#111111] w-4 h-4"> Bags</label></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h3 class="font-bold uppercase tracking-widest text-sm mb-4 border-b pb-2">Price Range</h3>
+                    <input type="range" id="priceFilter" min="0" max="500" value="500" class="w-full accent-[#111111]">
+                    <div class="flex justify-between text-xs text-gray-500 mt-2 font-medium">
+                        <span>$0</span>
+                        <span id="priceDisplay">$500+</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold uppercase tracking-widest text-sm mb-4 border-b pb-2">Size</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="size-btn w-10 h-10 border border-gray-300 text-sm font-medium hover:border-[#111111] transition" data-size="XS">XS</button>
+                        <button class="size-btn w-10 h-10 border border-gray-300 text-sm font-medium hover:border-[#111111] transition" data-size="S">S</button>
+                        <button class="size-btn w-10 h-10 border border-gray-300 text-sm font-medium hover:border-[#111111] transition" data-size="M">M</button>
+                        <button class="size-btn w-10 h-10 border border-gray-300 text-sm font-medium hover:border-[#111111] transition" data-size="L">L</button>
+                        <button class="size-btn w-10 h-10 border border-gray-300 text-sm font-medium hover:border-[#111111] transition" data-size="XL">XL</button>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="font-bold uppercase tracking-widest text-sm mb-4 border-b pb-2">Color</h3>
+                    <div class="flex flex-wrap gap-3">
+                        <button class="color-btn w-8 h-8 rounded-full bg-black border border-gray-300" data-color="black" title="Black"></button>
+                        <button class="color-btn w-8 h-8 rounded-full bg-white border border-gray-300" data-color="white" title="White"></button>
+                        <button class="color-btn w-8 h-8 rounded-full bg-[#E3D5CA] border border-gray-300" data-color="beige" title="Beige / Nude"></button>
+                        <button class="color-btn w-8 h-8 rounded-full bg-[#1e3a8a] border border-gray-300" data-color="navy" title="Navy"></button>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="w-full lg:w-3/4">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-8 pb-4 border-b border-gray-200">
+                    <h2 class="text-2xl font-bold brand-font mb-4 sm:mb-0">Shop</h2>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm font-medium text-gray-500 uppercase tracking-widest">Sort By:</span>
+                        <select id="sortSelect" class="border border-gray-300 bg-transparent text-sm p-2 outline-none focus:border-[#D4AF37]">
+                            <option value="Newest">Newest</option>
+                            <option value="Lowest">Lowest Price</option>
+                            <option value="Highest">Highest Price</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="productsContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="text-center col-span-3 text-gray-500 py-12">Loading Products from CUVA Database...</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        let allProducts = [];
+        let selectedSize = "";
+        let selectedColor = "";
+
+        // 1. جلب المنتجات من الباك إند المحلي
+        function fetchProducts() {
+            axios.get('http://localhost:5000/api/products')
+                .then(response => {
+                    allProducts = response.data;
+                    renderProducts(allProducts);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('productsContainer').innerHTML = `
+                        <div class="text-center col-span-3 text-red-500 py-12">
+                            Failed to connect to backend. Please check CORS and ensure server is running on port 5000.
+                        </div>`;
+                });
+        }
+
+        // 2. عرض المنتجات في الـ Grid بنفس الاستايل الأصلي والـ Quick View والـ New tag التابع لك
+      // 2. عرض المنتجات في الـ Grid بنفس الاستايل الأصلي والـ Quick View والـ New tag التابع لك
+        function renderProducts(products) {
+            const container = document.getElementById('productsContainer');
+            if (products.length === 0) {
+                container.innerHTML = '<div class="text-center col-span-3 text-gray-500 py-12">No items found matching criteria.</div>';
+                return;
+            }
+
+            container.innerHTML = products.map(product => {
+                // تأمين الصورة لو مش راجعة من الباك إند
+                const productImg = product.image || 'https://via.placeholder.com/300x400';
+                // تجهيز المقاس لو متاح في الداتابيز، أو مقاس افتراضي M
+                const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : 'M';
+
+                return `
+                <div class="group bg-white p-4 border border-gray-150 rounded-sm relative transition-all hover:shadow-md flex flex-col justify-between">
+                    <div>
+                        <div class="aspect-[3/4] bg-gray-100 mb-4 flex items-center justify-center text-gray-400 relative overflow-hidden">
+                            <img src="${productImg}" alt="${product.name}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            
+                            ${product.isNewProduct ? `<div class="absolute top-3 left-3 bg-[#111111] text-white text-[10px] px-2 py-1 uppercase tracking-widest font-bold">New</div>` : ''}
+                            
+                            <button class="absolute bottom-0 w-full bg-[#111111]/90 text-white py-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 text-xs uppercase tracking-widest font-semibold hover:bg-[#D4AF37]">
+                                Quick View
+                            </button>
+                        </div>
+                        
+                        <h3 class="font-bold text-sm text-[#111111] tracking-wide">${product.name}</h3>
+                        <p class="text-gray-500 text-sm mt-1 font-medium">$${product.price.toFixed(2)}</p>
+                    </div>
+
+                    <button onclick="addToCart('${product._id}', '${product.name.replace(/'/g, "\\'")}', ${product.price}, '${productImg}', '${defaultSize}')" 
+                            class="w-full mt-4 bg-[#111111] text-white text-xs uppercase tracking-widest font-semibold py-2.5 hover:bg-[#D4AF37] transition-colors duration-300">
+                        Add to Cart
+                    </button>
+                </div>
+                `;
+            }).join('');
+        }
+        
+
+        // 3. فلترة الداتا الحقيقية بناء على كلامك (البحث، الفئات، السعر، المقاس، واللون)
+        function filterProducts() {
+            const searchVal = document.getElementById('sidebarSearch').value.toLowerCase();
+            const maxPrice = parseFloat(document.getElementById('priceFilter').value);
+            document.getElementById('priceDisplay').textContent = `$${maxPrice}${maxPrice === 500 ? '+' : ''}`;
+            
+            const checkedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+
+            let filtered = allProducts.filter(product => {
+                const matchesSearch = product.name.toLowerCase().includes(searchVal);
+                const matchesCategory = checkedCategories.length === 0 || checkedCategories.includes(product.category);
+                const matchesPrice = product.price <= maxPrice;
+                const matchesSize = !selectedSize || (product.sizes && product.sizes.includes(selectedSize));
+                const matchesColor = !selectedColor || (product.colors && product.colors.includes(selectedColor));
+
+                return matchesSearch && matchesCategory && matchesPrice && matchesSize && matchesColor;
+            });
+
+            // الترتيب حسب السعر أو الجديد
+            const sortVal = document.getElementById('sortSelect').value;
+            if (sortVal === "Lowest") filtered.sort((a, b) => a.price - b.price);
+            if (sortVal === "Highest") filtered.sort((a, b) => b.price - a.price);
+
+            renderProducts(filtered);
+        }
+
+        // إدارة أزرار المقاسات بتأثيرات الـ UI الأصلية
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.size-btn').forEach(b => b.className = "size-btn w-10 h-10 border border-gray-300 text-sm font-medium hover:border-[#111111] transition");
+                if (selectedSize === e.target.dataset.size) {
+                    selectedSize = ""; // إلغاء الاختيار عند الضغط مرة تانية
+                } else {
+                    selectedSize = e.target.dataset.size;
+                    e.target.className = "size-btn w-10 h-10 border border-[#111111] bg-[#111111] text-white text-sm font-medium";
+                }
+                filterProducts();
+            });
+        });
+
+        // إدارة أزرار الألوان
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-2', 'ring-offset-2', 'ring-[#D4AF37]'));
+                if (selectedColor === e.target.dataset.color) {
+                    selectedColor = "";
+                } else {
+                    selectedColor = e.target.dataset.color;
+                    e.target.classList.add('ring-2', 'ring-offset-2', 'ring-[#D4AF37]');
+                }
+                filterProducts();
+            });
+        });
+
+        // تشغيل الفلاتر عند أي تغيير
+        document.getElementById('sidebarSearch').addEventListener('input', filterProducts);
+        document.getElementById('priceFilter').addEventListener('input', filterProducts);
+        document.getElementById('sortSelect').addEventListener('change', filterProducts);
+        document.querySelectorAll('.category-filter').forEach(cb => cb.addEventListener('change', filterProducts));
+
+        window.onload = fetchProducts;
+        // دالة إضافة المنتج إلى الـ LocalStorage
+// دالة إضافة المنتج إلى الـ LocalStorage
+function addToCart(productId, name, price, image, size = 'M') {
+    let cart = JSON.parse(localStorage.getItem('cuva_cart')) || [];
+
+    const existingProductIndex = cart.findIndex(item => item.id === productId && item.size === size);
+
+    if (existingProductIndex > -1) {
+        cart[existingProductIndex].quantity += 1;
+    } else {
+        cart.push({
+            id: productId,
+            name: name,
+            price: price,
+            image: image,
+            size: size,
+            quantity: 1
+        });
+    }
+
+    localStorage.setItem('cuva_cart', JSON.stringify(cart));
+    alert(`${name} (Size: ${size}) added to your CUVA cart! 🛒`);
+}
+  // دالة التحقق من الأدمن وإظهار الزرار
+function checkAdminStatus() {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const adminNav = document.getElementById('adminNav');
+
+    if (userInfo && userInfo.isAdmin) {
+        // إنشاء رابط الأدمن
+        const adminLink = document.createElement('a');
+        adminLink.href = "admin_dashboard.html"; // تأكد إنك عامل الملف ده
+        adminLink.className = "text-red-600 font-bold hover:text-red-800 transition-colors";
+        adminLink.textContent = "Admin Dashboard";
+        
+        // إضافته للـ Nav
+        adminNav.appendChild(adminLink);
+    }
+}
+
+// شغل الدالة دي أول ما الصفحة تفتح
+document.addEventListener('DOMContentLoaded', checkAdminStatus);
+// دالة عشان تظهر رابط الأدمن لو المستخدم أدمن
+function showAdminLink() {
+    const userInfo = JSON.parse(localStorage.getItem("userInfo")); // بنجيب الداتا اللي سيفناها وقت اللوجن
+    
+    // بنشوف لو اليوزر موجود و isAdmin بتاعته true
+    if (userInfo && userInfo.isAdmin) {
+        const nav = document.querySelector('nav'); // بنوصل للـ nav
+        const adminLink = document.createElement('a');
+        adminLink.href = "admin.html"; // ده اسم الملف اللي هتعمله للأدمن
+        adminLink.className = "text-red-600 font-bold hover:text-red-800 transition-colors uppercase text-sm";
+        adminLink.textContent = "Admin Dashboard";
+        nav.appendChild(adminLink); // بنضيف الزرار للـ Nav
+    }
+}
+
+// هنشغل الدالة دي لما الصفحة تفتح
+window.addEventListener('load', showAdminLink); 
+   </script>
+</body>
+</html>

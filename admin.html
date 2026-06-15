@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUVA | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600&family=Playfair+Display:wght=700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .brand-font { font-family: 'Playfair Display', serif; }
+    </style>
+</head>
+<body class="bg-[#FAFAFA] text-[#111111] pb-32">
+
+    <header class="bg-white border-b border-gray-200 py-5 px-6 md:px-12 flex items-center justify-between sticky top-0 z-50">
+        <div class="text-3xl font-bold tracking-widest brand-font">
+            CUVA ADMIN
+        </div>
+        <a href="home.html" class="text-sm uppercase font-semibold text-gray-500 hover:text-black transition">View Shop</a>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 md:px-12 pt-16">
+        <h1 class="text-4xl font-bold brand-font mb-12">Orders Management</h1>
+
+        <div class="bg-white border border-gray-200 overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-200 text-xs uppercase tracking-widest font-semibold text-gray-500">
+                        <th class="p-4">Customer</th>
+                        <th class="p-4">Items</th>
+                        <th class="p-4">Total Price</th>
+                        <th class="p-4">Shipping Address</th>
+                        <th class="p-4">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="adminOrdersTable" class="text-sm divide-y divide-gray-100">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const BACKEND_URL = 'http://localhost:5000/api/orders';
+
+        // 1. جلب كل الأوردرات من السيرفر وعرضها
+        async function fetchAllOrders() {
+            const token = localStorage.getItem('cuva_token');
+
+            try {
+                const response = await axios.get(`${BACKEND_URL}/admin`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                const orders = response.data;
+                const tableBody = document.getElementById('adminOrdersTable');
+
+                if (orders.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="5" class="text-center p-8 text-gray-500">No orders found.</td></tr>`;
+                    return;
+                }
+
+                let tableHTML = '';
+                orders.forEach(order => {
+                    // تجميع أسماء المنتجات ومقاساتها في سطر واحد
+                    const itemsDetails = order.items.map(item => `${item.name} (${item.size}) x${item.quantity}`).join('<br>');
+                    
+                    tableHTML += `
+                        <tr class="hover:bg-gray-50/50 transition">
+                            <td class="p-4 font-semibold">${order.user?.name || 'Unknown'}<br><span class="text-xs text-gray-400 font-normal">${order.user?.email || ''}</span></td>
+                            <td class="p-4 text-xs text-gray-600">${itemsDetails}</td>
+                            <td class="p-4 font-bold">${order.totalPrice} EGP</td>
+                            <td class="p-4 text-xs text-gray-600">${order.shippingAddress.city}, ${order.shippingAddress.addressDetails}</td>
+                            <td class="p-4">
+                                <select onchange="updateOrderStatus('${order._id}', this.value)" class="border border-gray-300 p-2 text-xs rounded focus:outline-none focus:border-[#D4AF37] bg-white font-semibold">
+                                    <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>⏳ Pending</option>
+                                    <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>📦 Shipped</option>
+                                    <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>✅ Delivered</option>
+                                    <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                                </select>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                tableBody.innerHTML = tableHTML;
+
+            } catch (error) {
+                console.error("Admin Fetch Error:", error);
+                alert(error.response?.data?.message || "Failed to load admin orders. Make sure you are an admin.");
+                window.location.href = 'home.html';
+            }
+        }
+
+        // 2. تحديث حالة الأوردر فوراً عند تغيير الـ Dropdown
+        async function updateOrderStatus(orderId, newStatus) {
+    const token = localStorage.getItem('cuva_token');
+
+    try {
+        await axios.put(`${BACKEND_URL}/${orderId}/status`, { status: newStatus }, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        alert('Order status updated successfully! 🚀');
+        
+        // هنا الإضافة الجديدة: اعمل تحديث للجدول عشان يظهر التغيير فوراً
+        fetchAllOrders(); 
+        
+    } catch (error) {
+        console.error("Update Status Error:", error);
+        alert(error.response?.data?.message || "Failed to update status.");
+    }
+}
+        
+
+        window.onload = fetchAllOrders;
+    </script>
+</body>
+</html>
